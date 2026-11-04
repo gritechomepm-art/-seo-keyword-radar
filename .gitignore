@@ -1,0 +1,10 @@
+# Never commit exported private business data, tokens, or Google credentials
+*.json
+*.csv
+*.xlsx
+.env
+.env.*
+*.pem
+*credentials*
+*client_secret*
+*token*
