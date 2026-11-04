@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#142642">
+  <title>SEO Keyword Radar | 国家公园商业机会工作台</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="./app.js" defer></script>
+</head>
+<body>
+<div class="app">
+  <aside class="side">
+    <div class="brand"><strong>SEO RADAR</strong><small>BUSINESS INTELLIGENCE WORKSPACE</small><br><span class="offline-pill">GITHUB PAGES · V1.4</span></div>
+    <nav class="nav" aria-label="主导航">
+      <button class="active" data-view="overview">▦　商业机会总览</button>
+      <button data-view="keywords">⌕　关键词机会池</button>
+      <button data-view="candidates">＋　候选词研究</button>
+      <button data-view="competitors">▤　竞品监控</button>
+      <button data-view="reviews">✓　立项决策中心</button>
+      <button data-view="settings">⚙　云端连接与备份</button>
+    </nav>
+    <div class="side-note">研究方向：美国国家公园旅行规划。AI 发型和 RV 泛户外电力示例不参与正式统计。<br><br>GitHub 仅存放程序代码，不存放私人关键词数据。</div>
+  </aside>
+  <main class="main">
+    <header class="top">
+      <div><div class="eyebrow">NATIONAL PARK SEARCH INTELLIGENCE</div><h1>国家公园 SEO 商业机会雷达</h1><div class="sub">GitHub Pages 托管 · Google OAuth 私有 Sheets 同步 · 离线缓存</div></div>
+      <div class="top-actions">
+        <span class="status waiting" id="status" role="status" aria-live="polite">尚未连接 Google Sheets</span>
+        <button class="connect-btn" id="connectBtn">连接 Google</button>
+        <button class="secondary" id="syncBtn">立即同步</button>
+        <button class="secondary" id="backupBtn">备份 JSON</button>
+      </div>
+    </header>
+    <div class="banner-info" id="infoBanner">首次使用：进入「云端连接与备份」，填写 Google OAuth 客户端 ID 与两份私有 Google Sheets 的 ID，然后点击「连接 Google」。</div>
+    <div class="notice"><b>数据可信度：</b>源表中的 Volume / CPC / Ads / DR 尚未独立验证；Ads 不能当作实时广告数量。候选词未调用付费 API；源表高潜评分不等于立项批准。本站不调用 DataForSEO，也不会未经许可产生付费请求。</div>
+    <div class="kpis" id="kpis"></div>
+
+    <section class="view active" id="view-overview">
+      <div class="grid2">
+        <div class="panel"><div class="panel-head"><h2>源表评级分布</h2><span class="pill" id="ratingTotal">0 个</span></div><div class="barlist" id="ratingBars"></div></div>
+        <div class="panel"><div class="panel-head"><h2>搜索量 Top 6</h2><span class="pill">源表数据</span></div><div class="barlist" id="topBars"></div></div>
+      </div>
+      <div class="panel"><div class="panel-head"><div><h2>优先人工复核的关键词</h2><div class="muted">源表评级仅用于排队；点击“审核”保存真实研究结论</div></div><button class="secondary" data-go="reviews">打开审核队列</button></div><div class="tablewrap"><table><thead><tr><th>关键词</th><th>Volume</th><th>CPC</th><th>DR*</th><th>源表评级</th><th>人工审核</th><th>操作</th></tr></thead><tbody id="priorityRows"></tbody></table></div></div>
+    </section>
+
+    <section class="view" id="view-keywords">
+      <div class="panel"><div class="panel-head"><div><h2>正式关键词机会池</h2><div class="muted">来自原表 Untitled；示例赛道自动排除</div></div><button data-go="candidates">＋ 在候选池新增</button></div>
+        <div class="toolbar"><input id="kwSearch" placeholder="搜索关键词和竞品缺口" aria-label="关键词搜索"><select id="kwRating"><option value="">全部源表评级</option><option value="high">高潜</option><option value="reject">放弃</option><option value="other">其他</option></select><select id="kwSort"><option value="volume">按搜索量</option><option value="cpc">按 CPC</option><option value="dr">按 DR 升序</option><option value="az">关键词 A–Z</option></select></div>
+        <div class="tablewrap"><table><thead><tr><th>关键词</th><th>Volume</th><th>CPC</th><th>Ads*</th><th>DR*</th><th>趋势</th><th>源表评级</th><th>审核状态</th><th>操作</th></tr></thead><tbody id="keywordRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="view" id="view-candidates">
+      <div class="panel"><div class="panel-head"><div><h2>候选关键词</h2><div class="muted">从 Google Sheets 同步；在线添加自动去重，离线添加进入待同步队列</div></div><button id="addCandidateBtn">＋ 批量新增关键词</button></div><div class="toolbar"><input id="candidateSearch" placeholder="搜索候选词…" aria-label="候选词搜索"></div><div class="tablewrap"><table><thead><tr><th>关键词</th><th>Seed</th><th>来源</th><th>Volume</th><th>CPC</th><th>SERP</th><th>备注</th><th>研究</th></tr></thead><tbody id="candidateRows"></tbody></table></div></div>
+    </section>
+
+    <section class="view" id="view-competitors">
+      <div class="panel"><div class="panel-head"><div><h2>真实同行监控池</h2><div class="muted">来自独立竞品 Sheet；DR、流量、Sitemap 空白意味着待验证</div></div><span class="pill" id="competitorTotal">0 个</span></div><div class="competitor-grid" id="competitorCards"></div></div>
+    </section>
+
+    <section class="view" id="view-reviews">
+      <div class="panel"><div class="panel-head"><div><h2>立项决策中心</h2><div class="muted">联网后写回 Google Sheets；断网保留待同步改动，不覆盖冲突</div></div><span class="pill" id="reviewCount">0 条</span></div><div class="toolbar"><input id="reviewSearch" placeholder="搜索待审核关键词" aria-label="搜索审核关键词"><select id="reviewFilter"><option value="">全部状态</option><option>待验证</option><option>研究中</option><option>已核验</option><option>批准立项</option><option>补充资料</option><option>不立项</option></select></div><div class="tablewrap"><table><thead><tr><th>关键词</th><th>类别</th><th>源表评级</th><th>审核状态</th><th>备注</th><th>更新</th><th>操作</th></tr></thead><tbody id="reviewRows"></tbody></table></div></div>
+    </section>
+
+    <section class="view" id="view-settings">
+      <div class="grid2">
+        <div class="panel"><h2>Google Sheets 私有连接</h2><p class="head-hint">这些配置仅保存在当前浏览器；不会提交至 GitHub。OAuth 客户端 ID 是公开标识，不是私钥。用户访问令牌只保存在当前页面内存中。</p>
+          <div class="settings-grid">
+            <div class="field full"><label for="oauthClient">Google OAuth Web Client ID</label><input id="oauthClient" placeholder="xxxx.apps.googleusercontent.com" autocomplete="off"></div>
+            <div class="field full"><label for="keywordSheet">02_关键词立项评分看板 · Spreadsheet ID</label><input id="keywordSheet" placeholder="从 Google Sheets 网址中复制 /d/ 后面的 ID" autocomplete="off"></div>
+            <div class="field full"><label for="competitorSheet">01_同行靶子站监控表 · Spreadsheet ID</label><input id="competitorSheet" placeholder="从 Google Sheets 网址中复制 /d/ 后面的 ID" autocomplete="off"></div>
+          </div>
+          <div class="actions" style="justify-content:flex-start"><button id="saveSettingsBtn">保存设置</button><button class="secondary" id="connectSettingsBtn">连接 Google 并同步</button></div>
+          <div class="status-note">授权来源必须包含当前 GitHub Pages 域名的 HTTPS origin（不含 /仓库名/ 路径）。首次登录需 Google OAuth 同意范围：仅你授权的 Sheets 读写。</div>
+        </div>
+        <div class="panel"><h2>同步状态</h2><div id="syncInfo" class="muted" style="margin-top:10px;line-height:1.9"></div><div class="actions" style="justify-content:flex-start;margin-top:12px"><button class="secondary" id="retryBtn">重试同步</button><button class="secondary" id="importBackupBtn">导入 JSON 备份</button><button class="secondary" id="exportReviewsBtn">导出审核 CSV</button></div><input class="hidden" type="file" id="backupFile" accept=".json,application/json"><p class="head-hint"><b>安全提醒：</b>GitHub Pages 网页本身是公开的，但私有 Sheets 只会在你通过 Google 账号 OAuth 授权后读取。不要在公共电脑上保存离线数据。</p></div>
+      </div>
+      <div class="panel"><h2>自动同步规则</h2><div class="head-hint">在线登录后立即同步，每 5 分钟检查一次；离线继续查看上次缓存并记录待提交审核与候选词。返回在线时，已有有效访问令牌则尝试提交；令牌过期需要点击「连接 Google」重新授权。对于云端审核记录发生变化的情况，系统不会静默覆盖，而会保留冲突提示，等待人工处理。</div><p class="warning-line">Google Sheets 的更改不会瞬间推送到页面，这里采用五分钟轮询。</p><button class="danger" id="clearCacheBtn">清理当前浏览器缓存与配置</button></div>
+    </section>
+    <div class="foot">SEO Keyword Radar V1.4 · 不含秘密凭证、私人数据或付费 API 调用 · GitHub Pages 仅托管前端代码</div>
+  </main>
+</div>
+
+<dialog id="addCandidateDialog"><div class="modal-head"><h3>批量新增国家公园候选词</h3><button class="xbtn" data-close aria-label="关闭">×</button></div><div class="modal-body">
+  <div class="field"><label for="newWords">英文关键词，每行一个（最多 100 个）</label><textarea id="newWords" rows="6" placeholder="national parks in january\nzion shuttle winter schedule"></textarea></div>
+  <div class="field"><label for="newSeed">词根 Seed（可选）</label><input id="newSeed" placeholder="national park itinerary"></div>
+  <div class="field"><label for="newUrl">来源 URL（可选）</label><input id="newUrl" placeholder="https://example.com/park-guide"></div>
+  <div class="field"><label for="newNote">备注（可选）</label><textarea id="newNote" placeholder="需要核验的用户意图与竞争缺口"></textarea></div>
+  <p class="mini">新增后立即保存在本地。联网且授权有效时提交 Google Sheets 候选池；不调用 DataForSEO。</p>
+</div><div class="modal-foot"><button class="secondary" data-close>取消</button><button id="confirmAddBtn">保存并同步</button></div></dialog>
+
+<dialog id="reviewDialog"><div class="modal-head"><h3>关键词审核</h3><button class="xbtn" data-close aria-label="关闭">×</button></div><div class="modal-body"><div id="reviewWord" style="font-weight:bold;font-size:15px"></div><div class="field"><label for="reviewState">人工审核状态</label><select id="reviewState"><option>待验证</option><option>研究中</option><option>已核验</option><option>批准立项</option><option>补充资料</option><option>不立项</option></select></div><div class="field"><label for="reviewNote">SERP、用户需求、商业变现路径、备注</label><textarea id="reviewNote"></textarea></div><div class="warning-line" id="reviewConflict" hidden></div><p class="mini">如发现云端记录被其他设备更新，将暂停覆盖并提示冲突。</p></div><div class="modal-foot"><button class="secondary" data-close>取消</button><button id="saveReviewBtn">保存审核</button></div></dialog>
+
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
