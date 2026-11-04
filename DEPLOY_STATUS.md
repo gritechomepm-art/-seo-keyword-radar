@@ -5,22 +5,20 @@ Updated: 2026-11-04
 ## Verified
 - Repository: https://github.com/gritechomepm-art/-seo-keyword-radar
 - Branch: `main`
-- Files committed and read back: `index.html`, `app.js`, `styles.css`, `README.md`, `.nojekyll`, `.gitignore`
-- Data stored in GitHub: **application code only**, no private Sheets data, tokens or credentials
-- GitHub repository visibility: **PRIVATE** (last verified 2026-11-04)
-- Frontend uses Google Identity Services + Google Sheets API, not Apps Script HTML Service
-- Previous build mock tests: code syntax, mock sync and mock writes passed
+- GitHub visibility: **PUBLIC** (verified via GitHub repository metadata).
+- Repository root contains `index.html`, `app.js`, `styles.css`, `README.md`, `.nojekyll` and `.gitignore`.
+- GitHub stores only application code; private Google Sheets data and OAuth tokens are not committed.
+- Frontend uses Google Identity Services + Google Sheets API, not Apps Script HTML Service.
+- User's GitHub Pages settings screenshot shows `GitHub Pages source saved.`
 
-## Not completed
-- Pages publishing source has not been enabled/verified in repository settings.
-- Private-repository GitHub Pages eligibility depends on the GitHub plan; on GitHub Free, the repository must be **Public**.
-- OAuth Web Client ID, authorized JS origin and Google Sheets API setup not verified.
-- Actual browser OAuth and live Sheets read/write verification not complete.
-- Live Pages URL is not yet confirmed.
+## Publication verification
+- User reports 404 at https://gritechomepm-art.github.io/-seo-keyword-radar/
+- A source-saved notice does not confirm that GitHub Pages build/deploy succeeded.
+- This commit occurs after the user selected the Pages publishing source, to request a fresh branch-source build.
+- Check repository Actions -> `pages build and deployment` and Settings -> Pages for actual status.
+- Do not mark PRODUCTION_PASS until the published site loads successfully.
 
-## Required operator steps
-1. If on GitHub Free, review files and change repository to Public at Settings > General > Danger Zone > Change visibility.
-2. Enable GitHub Pages at Settings > Pages > Deploy from branch > `main` > `/(root)`.
-3. In Google Cloud enable Sheets API; create an OAuth web client; set origin `https://gritechomepm-art.github.io`, and configure test users if applicable.
-4. Open the actual Pages URL shown in GitHub settings, enter OAuth Client ID and both private Spreadsheet IDs, and grant access.
-5. Verify 16 official keywords, 9 candidates, 3 competitors; add one test candidate and one review; ensure Sheets reflects both changes.
+## OAuth / data verification pending
+- Google Cloud OAuth Web Client ID and authorized JavaScript origin still require configuration.
+- Actual browser Google login, 16 official keywords + 9 candidates + 3 competitors, and review writeback need live verification.
+- No paid API calls or additional custom GitHub artifact-upload workflows are required.
