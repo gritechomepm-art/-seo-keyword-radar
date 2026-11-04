@@ -8,3 +8,8 @@
 *credentials*
 *client_secret*
 *token*
+
+# Generated local previews and browser QA downloads
+/dist/
+/.openai/
+/.qa/
