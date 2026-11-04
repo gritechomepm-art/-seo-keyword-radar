@@ -15,16 +15,14 @@
 
 > 免费 API 与否：本项目只调用 Google Sheets API，不调用 DataForSEO，也不会自动运行任何付费关键词查询。
 
-## 1. 创建 GitHub 仓库
+## 1. 当前 GitHub 仓库与 Pages 发布
 
-1. 用拥有 `gritechomepm-art` 账号权限的身份打开 https://github.com/new 。
-2. 推荐 Repository name：`seo-keyword-radar`。
-3. 如使用 GitHub Free + GitHub Pages，请创建 **Public** 仓库；代码公开，Sheets 内容不公开。
-4. 将 `index.html`、`app.js`、`styles.css`、`.nojekyll`、`README.md` 上传到仓库根目录。
-5. Settings → Pages → Build and deployment → **Deploy from a branch** → `main` → `/(root)` → Save。
-6. Pages 成功发布后，假如仓库名和账号与上面一致，访问地址应为：
+1. 代码已提交至 [gritechomepm-art/-seo-keyword-radar](https://github.com/gritechomepm-art/-seo-keyword-radar) 的 `main` 分支，无需再上传 ZIP。
+2. 本仓库当前为 **Private**。GitHub Free 使用 Pages 需要 **Public** 仓库；请在 Settings → General → Danger Zone → Change repository visibility 中自行改为 Public，**仅在确认仓库不含私有资料后操作**。若有支持私人仓库 Pages 的付费套餐，可保持 Private。
+3. Settings → Pages → Build and deployment → **Deploy from a branch** → `main` → `/(root)` → Save。
+4. Pages 发布成功后，在 Settings → Pages 复制实际 Visit site 链接；按当前仓库名，预期是：
 
-   `https://gritechomepm-art.github.io/seo-keyword-radar/`
+   `https://gritechomepm-art.github.io/-seo-keyword-radar/`
 
 **不要将私有 Google Sheets 导出数据、JSON 备份、OAuth token 或服务账号私钥上传到仓库。**
 
@@ -35,7 +33,7 @@
 1. 打开 https://console.cloud.google.com/apis/library/sheets.googleapis.com 并对项目启用 **Google Sheets API**。
 2. 进入 Google Auth Platform / OAuth consent screen。若应用处于 Testing，添加拥有两张 Sheets 权限的 Google 账号为测试用户。
 3. 创建 OAuth Client → Application type：**Web application**。
-4. Authorized JavaScript origins 添加 `https://gritechomepm-art.github.io`（**只添加 origin，不含 `/seo-keyword-radar/` 路径**）。若使用自定义域名，应添加实际 HTTPS origin。
+4. Authorized JavaScript origins 添加 `https://gritechomepm-art.github.io`（**只添加 origin，不含 `/-seo-keyword-radar/` 路径**）。若使用自定义域名，应添加实际 HTTPS origin。
 5. 复制 Web Client ID（形如 `....apps.googleusercontent.com`）。这不是密码。
 6. 打开已发布的 Dashboard → 「云端连接与备份」：分别填写 OAuth Client ID、关键词 Sheet ID、竞品 Sheet ID。
 7. 保存配置 → 「连接 Google」，使用拥有两份 Sheet 权限的账号批准访问。必要时按 Google 的测试应用提示完成授权。
@@ -53,7 +51,7 @@ OAuth scope：`https://www.googleapis.com/auth/spreadsheets`。网页通过 Goog
 
 关键词和竞品 Spreadsheet ID **不会出现在 GitHub 文件里**；请从你自己的 Google Sheets URL `/spreadsheets/d/<ID>/edit` 复制填入 Dashboard。
 
-当前预期初始计数：正式国家公园 16 条、候选 9 条、竞品 3 家。计数依据现有归档；以后可能随源表变化。
+首次实际登录 Google 后才显示记录；目前无任何私有数据写入 GitHub。当前预期初始计数：正式国家公园 16 条、候选 9 条、竞品 3 家。计数依据现有归档；以后可能随源表变化。
 
 ## 4. 日常使用与同步限制
 
