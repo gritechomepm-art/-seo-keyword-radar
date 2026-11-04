@@ -1,0 +1,36 @@
+name: Source CI
+on:
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: JavaScript syntax
+        run: |
+          node --check app.js
+          node --check radar-core.js
+          node --check radar-sheets.js
+          node --check xlsx-export.js
+      - name: Pool isolation and Sheets integration
+        run: node --test tests/research.test.cjs
+      - name: Excel round-trip
+        run: |
+          python -m pip install --disable-pip-version-check openpyxl==3.1.5
+          python tests/excel-roundtrip.py
+      - name: No legacy runtime bridge
+        run: |
+          if rg 'google\.script\.run|SpreadsheetApp|UrlFetchApp' app.js index.html radar-core.js radar-sheets.js; then
+            echo 'Apps Script runtime must not be required by the published frontend.'
+            exit 1
+          fi
