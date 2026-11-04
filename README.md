@@ -41,7 +41,7 @@
 OAuth scope：`https://www.googleapis.com/auth/spreadsheets`。网页通过 Google Identity Services token model 获取临时访问令牌，随后直接向 Sheets REST API 发起浏览器 CORS 请求。**令牌仅保存在当前网页运行内存，不存入 localStorage 或 GitHub。**
 
 ## 3. 原有数据映射
-
+<!-- Trigger Pages deployment -->
 | 数据 | 表格名称 | 范围 |
 |---|---|---|
 | 原始关键词 | `Untitled`（关键词表） | `A1:K` |
