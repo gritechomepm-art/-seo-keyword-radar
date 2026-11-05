@@ -14,3 +14,19 @@
 
 /* Plugin import stays within the existing workspace on narrow screens. */
 #pluginImportPanel{min-width:0;margin-bottom:24px}#pluginImportPanel>input,#pluginImportPanel>textarea,#pluginImportPanel>select{display:block;width:100%;max-width:100%;padding:10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink)}#pluginImportPanel .button-row{flex-wrap:wrap;margin-top:16px}#pluginPreview{min-width:0;max-width:100%;overflow-x:auto}#pluginPreview table{min-width:650px}#pluginWarnings{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow-y:auto}#pluginSummary{overflow-wrap:anywhere}
+
+/* Affiliate promotion configuration: no table overflow on mobile. */
+#promoMount{display:grid;gap:20px}
+.promo-table-wrap{max-width:100%;overflow-x:auto;margin-top:14px}
+.promo-table{width:100%;min-width:780px;border-collapse:collapse;font-size:13px;text-align:left}
+.promo-table th{background:#f5f7f2;color:#40594a;font-size:12px;padding:12px 10px}
+.promo-table td{border-top:1px solid var(--line);padding:12px 10px;vertical-align:top}
+.promo-table small{display:block;color:var(--muted);font-size:11px;line-height:1.5;margin-top:5px;overflow-wrap:anywhere}
+.promo-status{font-size:12px;font-weight:600;color:#3f644b}
+.promo-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 18px;margin:16px 0}
+.promo-grid .field-label{display:block;margin-bottom:4px}
+.promo-grid input,.promo-grid select,.promo-form textarea{width:100%;min-width:0;max-width:100%;padding:10px;border:1px solid var(--line);border-radius:8px;background:#fff;color:var(--ink)}
+.promo-form>.field-label{display:block;margin-top:10px;margin-bottom:5px}
+.promo-form .button-row{display:flex;flex-wrap:wrap;margin-top:14px;gap:10px}
+.promo-form input:read-only{background:#f5f7f2;color:#5c665d}
+@media(max-width:700px){.promo-grid{grid-template-columns:1fr}.promo-table{min-width:700px}}
