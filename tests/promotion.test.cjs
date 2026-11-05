@@ -17,11 +17,11 @@ test('rejects mismatched UIDs and false verified links',()=>{
  assert.throws(()=>P.validate({...x,uid:'wrong_uid'}),/UID 不匹配/);
  assert.throws(()=>P.validate({...x,affiliateUrl:''}),/已验证状态必须/);
  assert.throws(()=>P.validate({...x,landingPage:'http://parkmemoir.com'}),/HTTPS/);
- assert.throws(()=>P.validate({...x,affiliateUrl:'https://example.com/product'}),/uid 与本行/);
+ assert.throws(()=>P.validate({...x,affiliateUrl:'https://example.com/product'}),/pboost.me/);
 });
 test('UID is appended to actual PB tracking base, never inferred from merchant URL',()=>{
  assert.equal(P.withUid('https://pboost.me/abc','pm_test_campaign'),'https://pboost.me/abc?uid=pm_test_campaign');
- assert.throws(()=>P.withUid('https://us.ankersolix.com/products/c1000-gen2','bad uid'),/UID/);
+ assert.throws(()=>P.withUid('https://us.ankersolix.com/products/c1000-gen2','pm_test_campaign'),/pboost.me/);
 });
 function cloud(){
  let rows=[P.HEADERS];
