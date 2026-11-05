@@ -39,7 +39,7 @@ async function sync(client,settings,bucket){
   const local=s.items.find(x=>x.id===op.id);if(!local)continue;
   const there=remoteMap.get(op.id);
   if(there&&(there.updatedAt||'')!==(op.baseUpdated||'')){
-   if(JSON.stringify(toRow(local))===JSON.stringify(toRow(there)))continue;
+   if(JSON.stringify(toRow({...local,updatedAt:''}))===JSON.stringify(toRow({...there,updatedAt:''})))continue;
    conflicts.push({id:op.id,cloudUpdated:there.updatedAt,baseUpdated:op.baseUpdated});remains.push(op);continue;
   }
   try{
