@@ -68,3 +68,14 @@ python tests/excel-roundtrip.py
 The Python round-trip check requires `openpyxl==3.1.5`. Source CI runs these checks without uploading any GitHub artifacts. Browser QA uses the managed preview workflow, after `python scripts/prepare-preview.py`; the generated `dist/` and `.openai/` files are not committed.
 
 See `docs/QA_V2.md` for the scope and limits of validation. The UI screenshot contains only an isolated local test pool and public suggestions, not private Sheets data.
+
+
+## Plugin keyword import
+
+In `采集关键词`, paste SiteData/AITDK Top Keywords and supply the competitor URL and collection date. The selected pool supplies market and language; match these to the plugin's filters. Labelled inline or multiline records and tab-separated tables with named headers are supported. Unlabelled numeric layouts are warned about rather than guessed. Limits: 100,000 characters / 500 parsed records.
+
+Click `解析预览` before `确认导入所选新词`. Preview does not write candidates. Changing inputs, connection or pool invalidates the preview. Existing and within-batch duplicate keywords are skipped without overwriting research. The existing pending queue syncs confirmed candidates using RAW Sheets writes; offline items are explicitly local until synchronization succeeds. Sources, dates and metrics use the existing A–V schema.
+
+K/M values are expanded, missing values remain blank, and explicit zero stays zero. Imported metrics remain labelled as plugin estimates. DR stays blank and trend stays `待核验`. Commercial screening uses Volume >= 1,000 AND (CPC >= $0.30 OR Ads >= 1). Missing required metrics produce `指标待补齐`; a pass is a research lead, never automatic approval. The keyword library offers a commercial-pass filter. Use the review drawer's market SERP and Trends links, then record the top-five competitor URLs, minimum DR with tool/date, trend period/source, search intent and content gaps in the existing evidence field.
+
+Validation for this change: 13 Node data/parser/Sheets mock tests, JavaScript syntax checks and Excel round-trip passed. A real browser run could not start because this environment has no installed Chromium executable. Private Google authorization and live Sheets writes were not exercised.
