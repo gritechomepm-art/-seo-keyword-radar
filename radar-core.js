@@ -46,6 +46,18 @@
   function parseMaster(rows) {
     return rows.slice(1).map((r,i) => ({r,i})).filter(({r}) => parkPrefix.test(normalize(r[0]))).map(({r,i}) => ({keyword:String(r[0]).trim(),volume:number(r[1]),cpc:number(r[2]),ads:number(r[3]),dr:number(r[4]),trend:r[5] || '待核验',gap:r[9] || '',rating:r[10] || '',source:'master',row:i+2,metricSource:'',metricDate:'',drSource:'',drDate:'',note:''}));
   }
+  // Published formula sheet 03 includes both park keywords and hardware.
+  // It is read-only; the legacy Untitled parser remains as a fallback.
+  function parseOfficial(rows){
+    if(String(rows?.[0]?.[0]||'').trim()!=='关键词')return[];
+    return rows.slice(1).map((r,i)=>({r,i})).filter(({r})=>normalize(r[0])).map(({r,i})=>({
+      keyword:String(r[0]).trim(),volume:number(r[1]),cpc:number(r[2]),
+      ads:number(r[3]),dr:number(r[4]),trend:r[5]||'待核验',
+      gap:r[9]||'',rating:r[10]||'',uid:String(r[11]||'').trim(),
+      adsStatus:String(r[12]||'待验证').trim(),source:'master',row:i+2,
+      metricSource:'',metricDate:'',drSource:'',drDate:'',note:''
+    }));
+  }
   function parseCandidates(rows) {
     return rows.slice(1).map((r,i) => ({r,i})).filter(({r}) => normalize(r[1])).map(({r,i}) => ({keyword:String(r[1]).trim(),seed:r[0] || '',url:safeUrl(r[2]),domain:r[3] || '',date:r[4] || '',volume:number(r[6]),cpc:number(r[7]),ads:number(r[8]),dr:number(r[9]),autocomplete:r[10] || '',dataforseo:r[11] || '待查询',serp:r[12] || '待验证',note:r[13] || '',country:r[14] || '',language:r[15] || '',metricSource:r[16] || '',metricDate:r[17] || '',monthly:r[18] || '',trend:r[19] || '待核验',drSource:r[20] || '',drDate:r[21] || '',source:'candidate',row:i+2}));
   }
@@ -176,6 +188,6 @@
     return 'https://suggestqueries.google.com/complete/search?'+params;
   }
   function formatCount(v) { return v===null || v===undefined || v==='' ? '—' : Number(v).toLocaleString('en-US'); }
-  return {pluginNumber,parsePluginText,commercialScreen,normalize,html,number,safeUrl,STATES,HEADERS,RIVAL_HEADERS,REVIEW_HEADERS,POOL_HEADERS,REGISTRY,LEGACY,emptyCache,clone,migrate,createPool,poolRow,parsePoolRows,parseMaster,parseCandidates,candidateRow,parseRivals,parseReviews,records,isOfficial,addCandidates,uniqueId,enqueueReview,overlay,buildQueries,suggestionUrl,formatCount};
+  return {pluginNumber,parsePluginText,commercialScreen,normalize,html,number,safeUrl,STATES,HEADERS,RIVAL_HEADERS,REVIEW_HEADERS,POOL_HEADERS,REGISTRY,LEGACY,emptyCache,clone,migrate,createPool,poolRow,parsePoolRows,parseMaster,parseOfficial,parseCandidates,candidateRow,parseRivals,parseReviews,records,isOfficial,addCandidates,uniqueId,enqueueReview,overlay,buildQueries,suggestionUrl,formatCount};
 });
 

@@ -40,8 +40,8 @@
     async read(settings,pool){
       const meta=await this.meta(settings.keywordId),sheet=meta.find(s=>s.title===pool.keywordTab);if(!sheet)throw Error('找不到候选词工作表：'+pool.keywordTab);
       const end=col(Math.min(22,sheet.gridProperties.columnCount));
-      const [master,candidates,rivals,reviews]=await Promise.all([pool.legacy?this.values(settings.keywordId,pool.masterTab,'A1:K'):[],this.values(settings.keywordId,pool.keywordTab,'A1:'+end),this.values(pool.legacy?settings.competitorId:settings.keywordId,pool.competitorTab,'A1:J'),meta.some(s=>s.title===pool.reviewTab)?this.values(settings.keywordId,pool.reviewTab,'A1:D'):[]]);
-      return{...C.emptyCache(),official:pool.legacy?C.parseMaster(master):[],candidates:C.parseCandidates(candidates),competitors:C.parseRivals(rivals),reviews:C.parseReviews(reviews)};
+      const [master,candidates,rivals,reviews]=await Promise.all([pool.legacy?this.values(settings.keywordId,meta.some(s=>s.title==='03_国家公园_正式关键词')?'03_国家公园_正式关键词':pool.masterTab,meta.some(s=>s.title==='03_国家公园_正式关键词')?'A1:M':'A1:K'):[],this.values(settings.keywordId,pool.keywordTab,'A1:'+end),this.values(pool.legacy?settings.competitorId:settings.keywordId,pool.competitorTab,'A1:J'),meta.some(s=>s.title===pool.reviewTab)?this.values(settings.keywordId,pool.reviewTab,'A1:D'):[]]);
+      return{...C.emptyCache(),official:pool.legacy?(C.parseOfficial(master).length?C.parseOfficial(master):C.parseMaster(meta.some(s=>s.title==='03_国家公园_正式关键词')?await this.values(settings.keywordId,pool.masterTab,'A1:K'):master)):[],candidates:C.parseCandidates(candidates),competitors:C.parseRivals(rivals),reviews:C.parseReviews(reviews)};
     }
     async flush(settings,pool,cloud,pending){
       const remains=[],conflicts=[],errors=[];let written=0,candidateReady=false,reviewReady=false;

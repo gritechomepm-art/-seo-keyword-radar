@@ -92,3 +92,7 @@ The **推广链接配置** view is separate from keyword discovery. It stores th
 - No paid Ads, new landing page, API secrets or auto-publication are introduced.
 
 Validation includes six promotion tests plus the existing keyword/Sheets and Excel checks; GitHub Actions does not upload an artifact on success. Browser OAuth, real deep-link commission attribution and production deployment are separate acceptance gates.
+
+## Ads planning linkage on existing GitHub Pages (2.1)
+
+The existing GitHub Pages deployment replaces the earlier Apps Script installation advice. This increment preserves Google OAuth, separate pools, plugin import, reviews, promotion link editing and local cache. It reads the formula-result `03_国家公园_正式关键词` A:M (including 28 park/hardware rows) and joins 06 configs by UID. Never writes the formula sheet or starts Google Ads. Historic CPC/Ads/DR are research data; deep-link validation is not paid-search authorization or order attribution. If sheet 03 is missing/invalid, the original Untitled read is preserved as a fallback.
