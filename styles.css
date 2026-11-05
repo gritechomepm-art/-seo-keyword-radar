@@ -10,3 +10,7 @@
 @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}dialog::backdrop{backdrop-filter:none}}
 
 .mobile-only{display:none!important}@media(max-width:700px){.mobile-only{display:flex!important}}
+
+
+/* Plugin import stays within the existing workspace on narrow screens. */
+#pluginImportPanel{min-width:0;margin-bottom:24px}#pluginImportPanel>input,#pluginImportPanel>textarea,#pluginImportPanel>select{display:block;width:100%;max-width:100%;padding:10px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--ink)}#pluginImportPanel .button-row{flex-wrap:wrap;margin-top:16px}#pluginPreview{min-width:0;max-width:100%;overflow-x:auto}#pluginPreview table{min-width:650px}#pluginWarnings{white-space:pre-wrap;overflow-wrap:anywhere;max-height:180px;overflow-y:auto}#pluginSummary{overflow-wrap:anywhere}
