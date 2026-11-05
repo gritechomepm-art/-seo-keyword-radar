@@ -20,7 +20,7 @@ function validate(x){
  if(!url(out.landingPage)||!out.landingPage.startsWith('https://parkmemoir.com/'))throw Error('落地页必须是 PARKMEMOIR 的 HTTPS 页面');
  for(const k of ['sourceUrl','merchantUrl','affiliateUrl'])if(out[k]&&!url(out[k]))throw Error(k+' 必须是有效 HTTPS 网址');
  if(!/^[a-zA-Z0-9_-]{5,96}$/.test(out.uid))throw Error('UID 应为 5–96 位字母、数字、下划线或连字符');
- if(out.affiliateUrl){const actual=new URL(out.affiliateUrl).searchParams.get('uid');if(actual!==out.uid)throw Error('联盟链接中的 uid 与本行活动 UID 不匹配');}
+ if(out.affiliateUrl){const tracked=new URL(out.affiliateUrl);if(tracked.hostname!=='pboost.me')throw Error('请填写 pboost.me 商品跟踪链接，不能用官网地址冒充联盟链接');const actual=tracked.searchParams.get('uid');if(actual!==out.uid)throw Error('联盟链接中的 uid 与本行活动 UID 不匹配');}
  if(out.status==='已记录已验证链接'&&(!out.affiliateUrl||!out.verifiedAt))throw Error('已验证状态必须有联盟链接和核验日期');
  if(out.expiresAt&&out.verifiedAt&&out.expiresAt<out.verifiedAt)throw Error('活动结束日期不能早于核验日期');
  return out;
@@ -29,7 +29,7 @@ function makeState(){const now=new Date().toISOString();const items=SEEDS.map(x=
 function state(bucket){if(!bucket.promotions||!Array.isArray(bucket.promotions.items))bucket.promotions=makeState();return bucket.promotions;}
 function toRow(x){return FIELDS.map(k=>x[k]||'');}
 function fromRow(r,row){const x={};FIELDS.forEach((k,i)=>x[k]=String(r[i]??''));x.remoteUpdated=x.updatedAt;x.sheetRow=row;return x;}
-function withUid(base,uid){const u=url(base);if(!u)throw Error('先在 PartnerBoost 复制商品级 HTTPS 跟踪链接，而不是官网商品地址');if(!/^[a-zA-Z0-9_-]{5,96}$/.test(uid))throw Error('UID 格式不正确');const p=new URL(u);p.searchParams.set('uid',uid);return p.toString();}
+function withUid(base,uid){const u=url(base);if(!u)throw Error('先在 PartnerBoost 复制商品级 HTTPS 跟踪链接，而不是官网商品地址');if(!/^[a-zA-Z0-9_-]{5,96}$/.test(uid))throw Error('UID 格式不正确');const p=new URL(u);if(p.hostname!=='pboost.me')throw Error('请先从 PartnerBoost 复制 pboost.me 商品级深链');p.searchParams.set('uid',uid);return p.toString();}
 function csv(rows){return '\ufeff'+rows.map(row=>row.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(',')).join('\r\n');}
 async function sync(client,settings,bucket){
  const s=state(bucket);await client.ensureTabs(settings.keywordId,[{title:TAB,headers:HEADERS,strict:true}]);
