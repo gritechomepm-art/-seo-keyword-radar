@@ -56,3 +56,25 @@ test('suggestion requests include selected market; bounded query generation norm
 test('a review already applied after a lost acknowledgement is not written or conflicted again',async()=>{
  const mock=new FakeSheets(),api=mock.client(),cloud=C.emptyCache();cloud.reviews['power bank']={status:'研究中',note:'same evidence',updated:'server-new',row:2};const pending=[{type:'review',keyword:'power bank',status:'研究中',note:'same evidence',baseUpdated:'old'}];const result=await api.flush(settings,C.LEGACY,cloud,pending);assert.equal(result.remains.length,0);assert.equal(result.conflicts.length,0);assert.equal(mock.calls.length,0);
 });
+
+
+test('plugin records stay isolated and preserve unknown vs zero metrics',()=>{
+ const r=C.parsePluginText('Top Keywords\nhairstyle ai\nTraffic 1.3K Volume 1.1K CPC $0.35 Ads 1\nai hairstyle changer\nTraffic 360 Volume 1.7K CPC $0.97 Ads 4\nportable charger\nVolume 2,000 CPC $0 Ads 0');
+ assert.equal(r.items.length,3);assert.deepEqual(r.items.map(x=>[x.volume,x.cpc,x.ads]),[[1100,.35,1],[1700,.97,4],[2000,0,0]]);
+ const partial=C.parsePluginText('first keyword\nCPC $0.5\nsecond keyword\nVolume 3K');assert.equal(partial.items[0].volume,null);assert.equal(partial.items[1].cpc,null);assert.equal(partial.items[1].ads,null);
+ assert.equal(C.commercialScreen(partial.items[1]),'指标待补齐');assert.match(C.commercialScreen(r.items[0]),/初筛通过/);
+});
+test('plugin tabular headers control column order and malformed or unlabelled rows are rejected',()=>{
+ const r=C.parsePluginText('Keyword\tCPC\tAds\tVolume\tTraffic\nportable charger\t$0.45\t1\t2.5M\t1K\nbad row\t$0.3\t1');
+ assert.equal(r.items.length,1);assert.equal(r.items[0].volume,2500000);assert.equal(r.items[0].cpc,.45);assert.ok(r.warnings.length);
+ assert.equal(C.parsePluginText('power bank\t1K\t2K\t$0.4\t1').items.length,0);
+ const vertical=C.parsePluginText('power bank\nVolume\n1.2K\nCPC\n$0.3\nAds\n0');assert.equal(vertical.items[0].volume,1200);assert.equal(vertical.items[0].ads,0);
+ const bad=C.parsePluginText('power bank Volume 1K CPC $0.3 Ads 1.5');assert.equal(bad.items[0].ads,null);assert.ok(bad.warnings.length);
+});
+test('plugin estimates survive queue, retry, Sheets and round-trip without fabricated DR or trend',async()=>{
+ const mock=new FakeSheets(),api=mock.client(),p=C.createPool('Plugin US','US','en','p_plugin0001');await api.ensurePool(settings,p);
+ const local=C.emptyCache(),item={...C.parsePluginText('power bank Volume 1.2K CPC $0.5 Ads 0').items[0],metricSource:'SiteData（插件估算）',metricDate:'2026-11-05',url:'https://example.com',domain:'example.com'};
+ const result=C.addCandidates(local,[item,{...item,keyword:'POWER BANK'}],p,{pluginImport:true});assert.equal(result.duplicates,1);assert.equal(local.pending[0].item.volume,1200);assert.equal(result.added[0].dr,null);assert.equal(result.added[0].trend,'待核验');assert.equal(C.records(local)[0].review.status,'待验证');
+ const cloud=await api.read(settings,p);await api.flush(settings,p,cloud,local.pending);const restored=await api.read(settings,p);assert.equal(restored.candidates[0].volume,1200);assert.equal(restored.candidates[0].ads,0);assert.equal(restored.candidates[0].metricSource,item.metricSource);assert.equal(restored.candidates[0].dr,null);
+ const ordinary=C.emptyCache();C.addCandidates(ordinary,[item],p);assert.equal(ordinary.candidates[0].volume,null,'ordinary collection must not manufacture metrics');
+});
