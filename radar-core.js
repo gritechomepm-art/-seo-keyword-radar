@@ -64,7 +64,7 @@
     return [...map.values()].map(x => ({...x,review:(Object.hasOwn(cache.reviews,normalize(x.keyword))?cache.reviews[normalize(x.keyword)]:null) || {status:'待验证',note:'',updated:''}}));
   }
   const isOfficial = x => x.source === 'master' || x.review?.status === '批准立项';
-  function addCandidates(cache,items,pool) {
+  function addCandidates(cache,items,pool,{pluginImport=false}={}) {
     const known = new Set(records(cache).map(x => normalize(x.keyword)));
     const added=[]; let duplicates=0, invalid=0;
     for(const item of items) {
@@ -73,10 +73,69 @@
       if(known.has(keyword)) { duplicates++; continue; }
       known.add(keyword);
       const x={...item,keyword,source:'candidate',country:pool.country,language:pool.language,date:item.date || new Date().toISOString(),volume:null,cpc:null,ads:null,dr:null,metricSource:'',metricDate:'',trend:'待核验',pending:true};
+      if(pluginImport){for(const key of ['volume','cpc','ads'])x[key]=pluginNumber(item[key]);x.metricSource=item.metricSource || '';x.metricDate=item.metricDate || '';x.autocomplete='插件文本导入';}
       cache.candidates.push(x); cache.pending.push({id:uniqueId(),type:'candidate',item:clone(x)}); added.push(x);
     }
     cache.lastLocalEdit=new Date().toISOString();
     return {added,duplicates,invalid};
+  }
+
+  // Plugin values are estimates with provenance, never automatic research approval.
+  function pluginNumber(value) {
+    const s=String(value ?? '').trim().replace(/^\$\s*/, '').replace(/,/g,'');
+    if(!s || /^(?:-|—|n\/a|null)$/i.test(s)) return null;
+    const m=s.match(/^(\d+(?:\.\d+)?)\s*([km])?$/i);
+    return m ? Number(m[1]) * ({k:1000,m:1000000}[(m[2]||'').toLowerCase()]||1) : null;
+  }
+  function commercialScreen(x) {
+    if(x.volume==null || (x.cpc==null && x.ads==null)) return '指标待补齐';
+    if(x.volume>=1000 && ((x.cpc??0)>=0.3 || (x.ads??0)>=1)) return '商业初筛通过 · 竞争/趋势待核验';
+    return '商业初筛未通过';
+  }
+  function parsePluginText(raw) {
+    if(!String(raw||'').trim()) throw Error('请先粘贴插件文本');
+    if(raw.length>100000) throw Error('每批文本最多 100,000 个字符，请分批导入');
+    const lines=raw.split(/\r?\n/).map((text,i)=>({text:text.trim(),line:i+1})).filter(x=>x.text);
+    const items=[],warnings=[]; let current=null,header=null;
+    const aliases={keyword:'keyword',keywords:'keyword',traffic:'traffic',volume:'volume',cpc:'cpc',ads:'ads'};
+    const label=/\b(Traffic|Volume|CPC|Ads)\b\s*:?\s*(?=\$?\d|[-—]|n\/a|$)/ig;
+    const warn=(line,message)=>warnings.push('第 '+line+' 行：'+message);
+    function finish(){if(!current)return; const x=current;current=null;
+      if(x.keyword.length<2 || x.keyword.length>200 || !/[\p{L}]/u.test(x.keyword) || /^[=+@]/.test(x.keyword)){warn(x.line,'无法识别为关键词，已跳过');return;}
+      if(!x.seen){warn(x.line,'未找到标签指标，已跳过；表格请包含表头');return;}
+      delete x.seen;items.push(x);
+    }
+    for(let i=0;i<lines.length;i++){
+      const {text,line}=lines[i];
+      if(/^top keywords?$/i.test(text))continue;
+      if(text.includes('\t')){
+        finish();const cells=text.split('\t').map(v=>v.trim());const names=cells.map(v=>aliases[v.toLowerCase()]);
+        if(names.includes('keyword')){header=names;if(new Set(names.filter(Boolean)).size!==names.filter(Boolean).length)throw Error('表头有重复字段');continue;}
+        if(!header){warn(line,'制表符表格缺少表头，已跳过');continue;}
+        if(cells.length!==header.length){warn(line,'列数与表头不符，已跳过');continue;}
+        current={keyword:normalize(cells[header.indexOf('keyword')]),volume:null,cpc:null,ads:null,line,seen:0};
+        header.forEach((key,n)=>{if(!['volume','cpc','ads'].includes(key))return;current.seen++;let v=pluginNumber(cells[n]);if(cells[n]&&v===null&&!/^(?:-|—|n\/a)$/i.test(cells[n]))warn(line,key+' 格式无法识别，已留空');if(key==='ads'&&v!==null&&!Number.isInteger(v)){warn(line,'Ads 不是整数，已留空');v=null;}current[key]=v;});finish();continue;
+      }
+      const matches=[...text.matchAll(label)];
+      if(matches.length){
+        const prefix=text.slice(0,matches[0].index).trim();
+        if(prefix){finish();current={keyword:normalize(prefix),volume:null,cpc:null,ads:null,line,seen:0};}
+        if(!current){warn(line,'指标前没有关键词，已跳过');continue;}
+        for(let j=0;j<matches.length;j++){
+          const key=matches[j][1].toLowerCase();if(key==='traffic')continue;
+          let value=text.slice(matches[j].index+matches[j][0].length,j+1<matches.length?matches[j+1].index:text.length).trim();
+          if(!value && matches.length===1 && lines[i+1] && /^(?:\$?[\d,.]+\s*[km]?|-|—|n\/a)$/i.test(lines[i+1].text)) value=lines[++i].text;
+          current.seen++;let v=pluginNumber(value);
+          current.fields ||= [];if(current.fields.includes(key)){warn(line,'同一记录出现重复 '+key+'，整条已跳过');current.invalid=true;}
+          if(value && v===null && !/^(?:-|—|n\/a)$/i.test(value))warn(line,key+' 格式无法识别，已留空');
+          if(key==='ads'&&v!==null&&!Number.isInteger(v)){warn(line,'Ads 不是整数，已留空');v=null;}
+          current.fields.push(key);current[key]=v;
+        }
+      }else if(/^(?:\$?[\d,.]+\s*[km]?|[-—%]+)$/i.test(text)){warn(line,'无标签数值，已跳过');}
+      else {finish();current={keyword:normalize(text),volume:null,cpc:null,ads:null,line,seen:0};}
+    }
+    finish();if(items.length>500)throw Error('每批最多 500 条关键词，请分批解析');
+    return {items:items.filter(x=>!x.invalid),warnings};
   }
   function uniqueId(){return Date.now().toString(36)+'_'+Math.random().toString(36).slice(2,10);}
   function enqueueReview(cache,keyword,status,note) {
@@ -117,5 +176,6 @@
     return 'https://suggestqueries.google.com/complete/search?'+params;
   }
   function formatCount(v) { return v===null || v===undefined || v==='' ? '—' : Number(v).toLocaleString('en-US'); }
-  return {normalize,html,number,safeUrl,STATES,HEADERS,RIVAL_HEADERS,REVIEW_HEADERS,POOL_HEADERS,REGISTRY,LEGACY,emptyCache,clone,migrate,createPool,poolRow,parsePoolRows,parseMaster,parseCandidates,candidateRow,parseRivals,parseReviews,records,isOfficial,addCandidates,uniqueId,enqueueReview,overlay,buildQueries,suggestionUrl,formatCount};
+  return {pluginNumber,parsePluginText,commercialScreen,normalize,html,number,safeUrl,STATES,HEADERS,RIVAL_HEADERS,REVIEW_HEADERS,POOL_HEADERS,REGISTRY,LEGACY,emptyCache,clone,migrate,createPool,poolRow,parsePoolRows,parseMaster,parseCandidates,candidateRow,parseRivals,parseReviews,records,isOfficial,addCandidates,uniqueId,enqueueReview,overlay,buildQueries,suggestionUrl,formatCount};
 });
+
