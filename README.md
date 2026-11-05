@@ -79,3 +79,16 @@ Click `解析预览` before `确认导入所选新词`. Preview does not write c
 K/M values are expanded, missing values remain blank, and explicit zero stays zero. Imported metrics remain labelled as plugin estimates. DR stays blank and trend stays `待核验`. Commercial screening uses Volume >= 1,000 AND (CPC >= $0.30 OR Ads >= 1). Missing required metrics produce `指标待补齐`; a pass is a research lead, never automatic approval. The keyword library offers a commercial-pass filter. Use the review drawer's market SERP and Trends links, then record the top-five competitor URLs, minimum DR with tool/date, trend period/source, search intent and content gaps in the existing evidence field.
 
 Validation for this change: 13 Node data/parser/Sheets mock tests, JavaScript syntax checks and Excel round-trip passed. A real browser run could not start because this environment has no installed Chromium executable. Private Google authorization and live Sheets writes were not exercised.
+
+## Affiliate promotions (November 2026)
+
+The **推广链接配置** view is separate from keyword discovery. It stores the source/competitor evidence URL, existing PARKMEMOIR landing page, product brand/model, official merchant URL, actual PartnerBoost tracking URL, channel-specific UID, known commission, verification date, expiration and status. These are deliberately different fields.
+
+- The `06_推广链接配置` tab in the existing keyword workbook is the sync target; initial seed rows are RIVONOVA 20L cooler backpack, Anker SOLIX C1000 Gen 2 and Vantrue N4 Pro S.
+- The prior confirmed RIVONOVA URL is `https://pboost.me/I6puEkFE?uid=pm_winter_gear_cooler`; it must **not** be shown as a 12V compressor vehicle refrigerator.
+- Anker and Vantrue have brand enrollment approval, but product-level tracking URLs and commission eligibility still require authenticated verification in PartnerBoost. Official merchant URLs are deliberately **not** tracked links.
+- Users can paste an existing PB product-specific tracking URL and append the campaign UID; the result remains **待验证** until the destination and eligible SKU are checked. UID mismatch prevents saving a tracked-link row.
+- Rows are local-first and preserved in full JSON backups. Google sync writes RAW cells. Cloud timestamps prevent silent overwrite from another browser; conflicting edits remain pending. CSV export is available.
+- No paid Ads, new landing page, API secrets or auto-publication are introduced.
+
+Validation includes six promotion tests plus the existing keyword/Sheets and Excel checks; GitHub Actions does not upload an artifact on success. Browser OAuth, real deep-link commission attribution and production deployment are separate acceptance gates.
